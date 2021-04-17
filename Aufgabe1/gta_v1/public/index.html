@@ -20,57 +20,83 @@
 			</nav>
 		</header>
 
+
+
 		<main>
 
-			<section class="tagging">
-				<h2>Tagging</h2>
+			<div class="row">
 
-				<form id="tag-form" action="/tagging" method="post">
-					<fieldset form="tag-form">
-						<legend>Enter new GeoTag</legend>
-						<label for="latitude">latitude</label><br>
-						<input type="number" value="49.01379" id="latitude" step="0.000001" required><br><br>
+				<div class="col-3">
 
-						<label for="longitude">longitude</label><br>
-						<input type="number" value="8.390071" id="longitude" step="0.000001" required><br><br>
+					<section class="tagging">
+						<h2>Tagging</h2>
 
-						<label for="name">name</label><br>
-						<input type="text" placeholder="some name" id="name" required><br><br>
+						<form id="tag-form" action="/tagging" method="post">
+							<fieldset form="tag-form">
 
-						<label for="hashtag">hashtag</label><br>
-						<input type="text" pattern="^#[A-z]{1,10}" placeholder = "# + max. 10 letters" id="hashtag" title="Must start with # followed by 1-10 letters!"><br><br>
+								<legend>Enter new GeoTag</legend>
+								<label for="latitude">latitude</label><br>
+								<input type="number" value="49.01379" id="latitude" step="0.000001" style="width: 55%;"  required ><br>
 
-						<input type="submit" value="submit">
-					</fieldset>
-				</form>
+								<label for="longitude">longitude</label><br>
+								<input type="number" value="8.390071" id="longitude" step="0.000001" style="width: 55%;"  required><br>
 
-			</section>
+								<label for="name">name</label><br>
+								<input type="text" placeholder="some name" id="name" style="width: 55%;" required><br>
 
-			<section class="discovery">
-				<h2>Discovery</h2>
+								<label for="hashtag">hashtag</label><br>
+								<input type="text" pattern="^#[A-z]{1,10}" placeholder = "# + max. 10 letters" id="hashtag" title="Must start with # followed by 1-10 letters!" style="width: 55%;" > <br><br>
 
-				<form id="filter-form" action="/discovery" method="post">
-					
-					<fieldset form="filter-form">
-						<legend>Filter by Searchterm</legend>
-						<input type="text" placeholder="search term" id="searchTerm">
-						<input type="submit" value="apply">
-					</fieldset>
-				</form>
+								<input type="submit" value="submit">
 
-				<div class="taglist">
-					<ul id="results">
-						<li>Castle (49.01379, 8.404435) #sight</li>
-						<li>IWI (49.01379, 8.390071) #edu</li>
-					</ul>
+							</fieldset>
+						</form>
+
+					</section>
+
 				</div>
 
-				<div class="tagmap">
-					<img id="result-img" src="./images/mapview.jpg" alt="a map with locations"/>
-					<div class="caption">Result map</div>
+
+				<div class="col-9">
+
+					<section class="discovery">
+						<h2>Discovery</h2>
+
+						<form id="filter-form" action="/discovery" method="post">
+							
+							<fieldset form="filter-form">
+								<legend>Filter by Searchterm</legend>
+								<input type="text" placeholder="search term" id="searchTerm">
+								<input type="submit" value="apply">
+							</fieldset>
+						</form>
+
+						
+						<div class="col-4">
+							
+							<div class="taglist">
+								
+								<ul id="results">
+									<p> Castle (49.01379, 8.404435) #sight </p>
+									<p> IWI (49.01379, 8.390071) #edu </p>
+								</ul>
+							</div>
+						</div>
+						
+						<div class="col-8">
+
+							<div class="tagmap">
+								<img id="result-img" src="./images/mapview.jpg" alt="a map with locations"/>
+								<div class="caption">Result map</div>
+							</div>
+						</div>
+						
+
+					</section>
+
 				</div>
 
-			</section>
+			</div>
 
 		</main>
 
