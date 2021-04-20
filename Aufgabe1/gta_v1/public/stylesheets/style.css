@@ -7,6 +7,31 @@ a {
   color: #00B7FF;
 }
 
+*{
+  box-sizing: border-box;
+}
+
+header{
+  width: 100%;
+  border: 15px gray; 
+  display:block;
+  background-color: gray;
+}
 .tagging form {
-  
+  width: 25%;
+  float:left
+}
+.discovery{
+  width: 70%;
+  float:right;
+}
+.result-img{
+  width: 30%;
+  float :right;
+
+}
+footer{
+  display: block;
+  clear:right;
+  background-color:gray;
 }
