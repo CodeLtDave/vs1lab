@@ -56,13 +56,13 @@ main {
   display: flex;
   flex-direction: row;
   flex-grow: 1;
-  min-width: 150px;
+  
   
 }
 
 .taglist{
   flex-grow: 1; /* dynamischer Breite der Eintragsliste = 1*/
-  min-width: 150px;
+  
 }
 
 
@@ -70,7 +70,7 @@ main {
 .tagmap{
   
   flex-grow: 1;
-  min-width: 200px;
+  
   margin-left: 150px;
   
 }
