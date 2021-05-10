@@ -113,6 +113,8 @@ var gtaLocator = (function GtaLocator(geoLocationApi) {
         return urlString;
     };
 
+    
+
     return { // Start öffentlicher Teil des Moduls ...
 
         // Public Member
@@ -120,6 +122,19 @@ var gtaLocator = (function GtaLocator(geoLocationApi) {
         readme: "Dieses Objekt enthält 'öffentliche' Teile des Moduls.",
 
         updateLocation: function() {
+
+            tryLocate(function(position) { 
+                
+                    var latitude = document.getElementById("latitude");
+                    latitude.value = getLatitude(position);
+                    document.getElementById("longitude").value = getLongitude(position);
+                },
+
+                function(error) {
+                    
+                    alert(error);
+                }
+            );
             // TODO Hier Inhalt der Funktion "update" ergänzen
         }
 
@@ -132,6 +147,7 @@ var gtaLocator = (function GtaLocator(geoLocationApi) {
  * des Skripts.
  */
 $(function() {
-    alert("Please change the script 'geotagging.js'");
+    
+    gtaLocator.updateLocation();
     // TODO Hier den Aufruf für updateLocation einfügen
 });
