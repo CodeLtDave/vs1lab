@@ -29,7 +29,7 @@ app.set('view engine', 'ejs');
  * Teste das Ergebnis im Browser unter 'http://localhost:3000/'.
  */
 
-// TODO: CODE ERGÄNZEN
+ app.use(express.static('public'))
 
 /**
  * Konstruktor für GeoTag Objekte.
