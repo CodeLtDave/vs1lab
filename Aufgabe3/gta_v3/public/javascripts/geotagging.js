@@ -129,8 +129,7 @@ var gtaLocator = (function GtaLocator(geoLocationApi) {
             
                     latitude = getLatitude(position);
                     longitude = getLongitude(position);
-                    //var url = getLocationMapSrc(getLatitude(position), getLongitude(position) ,undefined,0.5);
-                    document.getElementById("result-img").src =getLocationMapSrc(getLatitude(position), getLongitude(position),undefined, 20 );
+                    document.getElementById("result-img").src =getLocationMapSrc(getLatitude(position), getLongitude(position),undefined,18 );
                 },
 
                 function(error) {
@@ -138,9 +137,6 @@ var gtaLocator = (function GtaLocator(geoLocationApi) {
                     alert(error);
                 }
             );
-           
-           
-            // TODO Hier Inhalt der Funktion "update" ergänzen
         }
 
     }; // ... Ende öffentlicher Teil

@@ -54,28 +54,35 @@ class GeoTag{
  * - Funktion zum Löschen eines Geo Tags.
  */
 
-var taglist = [];
+var tagList = [];
+var filteredList = [];
 
 function searchName(searchTerm) {
-    var indexList = [];
-    for (var i = 0; i<taglist.length; i++) {
-        if (1==1) {
-            indexList.push(i);
+    for(var i = 0; i<tagList.length; i++) {
+        if(tagList[i].name.includes(searchTerm) || tagList[i].hashtag.includes(searchTerm)) {
+            filteredList.push(getTagg(i));
         }
     }
-    console.log("Results:" + indexList);
-    return indexList;
 }
 
 function addTag(body) {
-    taglist.push(new GeoTag(body));
+    tagList.push(new GeoTag(body));
     console.log("Tagg added!");
 }
 
 function deleteTag(index) {
-    taglist.splice(index,1);
+    tagList.splice(index,1);
     console.log("Tagg deleted");
-    console.log(taglist);
+}
+
+function getTagg(i) {
+    var body = {
+        latitude: tagList[i].latitude,
+        longitude: tagList[i].longitude,
+        name: tagList[i].name,
+        hashtag: tagList[i].hashtag
+    };
+    return new GeoTag(body)
 }
 
 /**
@@ -109,7 +116,7 @@ app.get('/', function(req, res) {
  app.post('/tagging', function(req, res){
     console.log(req.body);
     addTag(req.body);
-    res.render('gta', {taglist});
+    res.render('gta', {taglist: tagList});
  });
 
 /**
@@ -125,13 +132,10 @@ app.get('/', function(req, res) {
  */
 
  app.post('/discovery', function(req, res){
-    console.log("Index: " + req.body.searchTerm);
-    var indexList = searchName(req.body.searchTerm);
-    var resultList = [];
-    for (var i = 0; i<indexList; i++) {
-        resultList.push(taglist[indexList[i]]);
-    }
-    res.render('gta', {resultList});
+    filteredList = [];
+    searchName(req.body.searchTerm);
+    console.log('Search for: "' + req.body.searchTerm + '" gave ' + filteredList.length + 'results');
+    res.render('gta', {taglist: filteredList});
  });
 
 /**
