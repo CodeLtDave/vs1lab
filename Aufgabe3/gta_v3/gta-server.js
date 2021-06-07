@@ -116,7 +116,7 @@ app.get('/', function(req, res) {
  app.post('/tagging', function(req, res){
     console.log(req.body);
     addTag(req.body);
-    res.render('gta', {taglist: tagList});
+    res.render('gta', {taglist: tagList, latitude: req.body.latitude, longitude: req.body.latitude});
  });
 
 /**
@@ -134,7 +134,7 @@ app.get('/', function(req, res) {
  app.post('/discovery', function(req, res){
     filteredList = [];
     searchName(req.body.searchTerm);
-    console.log('Search for: "' + req.body.searchTerm + '" gave ' + filteredList.length + 'results');
+    console.log('Search for: "' + req.body.searchTerm + '" gave ' + filteredList.length + ' results');
     res.render('gta', {taglist: filteredList});
  });
 
