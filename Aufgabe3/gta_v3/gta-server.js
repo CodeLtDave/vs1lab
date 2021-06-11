@@ -57,10 +57,24 @@ class GeoTag{
 var tagList = [];
 var filteredList = [];
 
+function searchKoordinate(tag) {
+    const RADIUS = 0.005;
+    
+    var diff_lat = Math.abs(tag.latitude - tagList[tagList.length-1].latitude); 
+    var diff_lon = Math.abs(tag.longitude - tagList[tagList.length-1].longitude);
+    var diff = Math.sqrt( diff_lat * diff_lat + diff_lon * diff_lon );
+
+    if (diff > RADIUS) 
+        return false;
+    else
+        return true;
+}
+
 function searchName(searchTerm) {
     for(var i = 0; i<tagList.length; i++) {
         if(tagList[i].name.includes(searchTerm) || tagList[i].hashtag.includes(searchTerm)) {
-            filteredList.push(getTagg(i));
+            if (searchKoordinate(tagList[i]))
+                filteredList.push(getTagg(i));
         }
     }
 }
@@ -116,7 +130,7 @@ app.get('/', function(req, res) {
  app.post('/tagging', function(req, res){
     console.log(req.body);
     addTag(req.body);
-    res.render('gta', {taglist: tagList, latitude: req.body.latitude, longitude: req.body.latitude});
+    res.render('gta', {taglist: tagList, latitude: req.body.latitude, longitude: req.body.longitude});
  });
 
 /**

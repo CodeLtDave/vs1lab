@@ -122,21 +122,44 @@ var gtaLocator = (function GtaLocator(geoLocationApi) {
         readme: "Dieses Objekt enthält 'öffentliche' Teile des Moduls.",
 
         updateLocation: function() {
-            
             var latitude = document.getElementById("latitude").value;
             var longitude = document.getElementById("longitude").value;
-            tryLocate(function(position) { 
-            
-                    latitude = getLatitude(position);
-                    longitude = getLongitude(position);
-                    document.getElementById("result-img").src =getLocationMapSrc(getLatitude(position), getLongitude(position),undefined,18 );
-                },
+            if ( (latitude == "") || (longitude == "") ) {
+                tryLocate(function(position) { 
+                        latitude = getLatitude(position);
+                        longitude = getLongitude(position);
+                        
+                        document.getElementById("latitude").value = latitude;
+                        document.getElementById("longitude").value = longitude;
 
-                function(error) {
-                    
-                    alert(error);
+                        console.log("Calling Geo Locater api");
+
+                        syncMap();
+                    },
+
+                    function(error) {
+                        alert(error);
+                    }
+                );
+            }
+            else {
+                syncMap();
+            }
+
+            function syncMap() {
+                console.log("Requesting image");
+                var taglist_json = document.getElementById("result-img").dataset.tags;
+                var taglist = undefined;
+                if (taglist_json !== undefined) {
+                    taglist = JSON.parse(taglist_json);
                 }
-            );
+    
+                console.log(taglist_json);
+                console.log(taglist);
+    
+                document.getElementById("result-img").src = getLocationMapSrc(latitude, longitude, taglist, 15 );
+            }
+
         }
 
     }; // ... Ende öffentlicher Teil

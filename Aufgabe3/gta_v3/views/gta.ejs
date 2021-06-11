@@ -29,10 +29,16 @@
 					<fieldset form="tag-form">
 						<legend>Enter new GeoTag</legend>
 						<label for="latitude">latitude</label>
-						<input type="number" class="input-box" name="latitude" id="latitude" step="0.000001" required>
+						<input type="number" class="input-box" name="latitude" id="latitude" step="any" required value=
+						<% if (typeof latitude != 'undefined') { %>
+							<%=latitude%>
+						<% } %>>
 
 						<label for="longitude">longitude</label>
-						<input type="number" class="input-box" name="longitude" id="longitude" step="0.000001" required>
+						<input type="number" class="input-box" name="longitude" id="longitude" step="any" required value=
+						<% if (typeof longitude != 'undefined') { %>
+							<%=longitude%>
+						<% } %>>
 
 						<label for="name">name</label>
 						<input type="text" placeholder="some name" class="input-box" name="name" id="name" required>
@@ -68,7 +74,10 @@
 					</div>
 
 					<div class="tagmap">
-						<img id="result-img" src="./images/mapview.jpg" alt="a map with locations"/>
+						<img id="result-img" src="./images/mapview.jpg" alt="a map with locations" data-tags=
+						<% if (typeof taglist != 'undefined') { %>
+							<%=JSON.stringify(taglist)%>
+						<% } %>/>
 						<div class="caption">Result map</div>
 					</div>
 				</section>
