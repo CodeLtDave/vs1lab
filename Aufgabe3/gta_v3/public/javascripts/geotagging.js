@@ -173,5 +173,5 @@ var gtaLocator = (function GtaLocator(geoLocationApi) {
 $(function() {
     
     gtaLocator.updateLocation();
-      // TODO Hier den Aufruf für updateLocation einfügen
+    
 });

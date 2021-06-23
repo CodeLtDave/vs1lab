@@ -29,6 +29,8 @@ GEOLOCATIONAPI = {
     }
 };
 
+
+
 // Die echte API ist diese.
 // Falls es damit Probleme gibt, kommentieren Sie die Zeile aus.
 GEOLOCATIONAPI = navigator.geolocation;
@@ -109,7 +111,7 @@ var gtaLocator = (function GtaLocator(geoLocationApi) {
         var urlString = "https://www.mapquestapi.com/staticmap/v4/getmap?key=" +
             apiKey + "&size=600,400&zoom=" + zoom + "&center=" + lat + "," + lon + "&" + tagList;
 
-        console.log("Generated Maps Url: " + urlString);
+        //console.log("Generated Maps Url: " + urlString);
         return urlString;
     };
 
@@ -121,7 +123,7 @@ var gtaLocator = (function GtaLocator(geoLocationApi) {
 
         readme: "Dieses Objekt enthält 'öffentliche' Teile des Moduls.",
 
-        updateLocation: function() {
+        updateLocation: function(tagList=undefined) {
             var latitude = document.getElementById("latitude").value;
             var longitude = document.getElementById("longitude").value;
             if ( (latitude == "") || (longitude == "") ) {
@@ -133,8 +135,7 @@ var gtaLocator = (function GtaLocator(geoLocationApi) {
                         document.getElementById("longitude").value = longitude;
 
                         console.log("Calling Geo Locater api");
-
-                        syncMap();
+                        gtaLocator.syncMap(tagList);
                     },
 
                     function(error) {
@@ -142,24 +143,16 @@ var gtaLocator = (function GtaLocator(geoLocationApi) {
                     }
                 );
             }
-            else {
-                syncMap();
-            }
+            else
+                gtaLocator.syncMap(tagList);
 
-            function syncMap() {
-                console.log("Requesting image");
-                var taglist_json = document.getElementById("result-img").dataset.tags;
-                var taglist = undefined;
-                if (taglist_json !== undefined) {
-                    taglist = JSON.parse(taglist_json);
-                }
-    
-                console.log(taglist_json);
-                console.log(taglist);
-    
-                document.getElementById("result-img").src = getLocationMapSrc(latitude, longitude, taglist, 15 );
-            }
+        },
+        syncMap: function(tagList=undefined) {
+            console.log("Requesting image ");
+            var latitude = document.getElementById("latitude").value;
+            var longitude = document.getElementById("longitude").value;
 
+            document.getElementById("result-img").src = getLocationMapSrc(latitude, longitude, tagList, 15 );
         }
 
     }; // ... Ende öffentlicher Teil
@@ -171,7 +164,72 @@ var gtaLocator = (function GtaLocator(geoLocationApi) {
  * des Skripts.
  */
 $(function() {
+
     
     gtaLocator.updateLocation();
-      // TODO Hier den Aufruf für updateLocation einfügen
+    
+    //Wenn tagging button gedrückt wird
+    document.getElementById("tagging-button").addEventListener("click", function() {
+        var latitude = document.getElementById("latitude").value;
+        var longitude = document.getElementById("longitude").value;
+        var name = document.getElementById("name").value;
+        var hashtag = document.getElementById("hashtag").value;
+
+        var ajax = new XMLHttpRequest();
+
+        ajax.open("POST", "/tagging", true);
+        ajax.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+
+        //Wenn die Anfrage beendet ist und ein Ergebnis vorliegt, rufe UpdateTaglist auf
+        ajax.onreadystatechange = function() {
+            if (ajax.readyState==4) {
+                var tagList = JSON.parse(ajax.responseText);
+                console.log("Tagg added, complete List: " + ajax.responseText);
+                gtaLocator.updateLocation(tagList);
+                updateTaglist(tagList);
+            }
+        }
+
+        //Sende den Tag an den Server
+        ajax.send(JSON.stringify({ 
+            "latitude": latitude,
+            "longitude":longitude, 
+            "name": name,
+            "hashtag": hashtag,
+        }));
+    });
+
+
+    //Wenn discovery button gedrückt wird
+    document.getElementById("discovery-button").addEventListener("click", function() {
+        var ajax = new XMLHttpRequest();
+        var searchTerm = document.getElementById("searchTerm").value;
+
+        if(searchTerm!="")
+            ajax.open("GET", "/discovery/" + searchTerm, true);
+        else
+            ajax.open("GET", "/discovery", true);
+
+        //Wenn die Anfrage beendet ist und ein Ergebnis vorliegt, rufe UpdateTaglist auf
+        ajax.onreadystatechange = function() {
+            if(ajax.readyState==4) {
+                var tagList = JSON.parse(ajax.responseText);
+                console.log("GET DISCOVERY: " + ajax.responseText);
+                gtaLocator.updateLocation(tagList);
+                updateTaglist(tagList);
+            }
+        }
+        ajax.send();
+    });
 });
+
+//Funktion um mit einem taglist array die HTML Liste neu zu laden
+function updateTaglist(tagList) {
+    var ul = document.getElementById("results");
+    ul.innerHTML="";
+    tagList.forEach(tag => {
+        var entry = document.createElement("li");
+        entry.appendChild(document.createTextNode(tag.name+ " (" + tag.latitude + ", " + tag.longitude + ") " + tag.hashtag));
+        ul.appendChild(entry);
+    });
+}

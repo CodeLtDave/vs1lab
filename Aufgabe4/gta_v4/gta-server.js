@@ -20,6 +20,7 @@ var app;
 app = express();
 app.use(logger('dev'));
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 
 // Setze ejs als View Engine
 app.set('view engine', 'ejs');
@@ -41,7 +42,13 @@ class GeoTag{
         this.latitude = body.latitude
         this.longitude = body.longitude
         this.name = body.name
-        this.hashtag = body.hashtag
+        if (body.hashtag.length>0) {
+            if(body.hashtag.includes('#'))
+                this.hashtag = body.hashtag
+            else
+                this.hashtag = '#' + body.hashtag
+        }
+
     }
 }
 
@@ -72,7 +79,7 @@ function searchKoordinate(tag) {
         return true;
 }
 
-function searchName(searchTerm) {
+function searchName(searchTerm="") {
     for(var i = 0; i<tagList.length; i++) {
         if(tagList[i].name.includes(searchTerm) || tagList[i].hashtag.includes(searchTerm)) {
             if (searchKoordinate(tagList[i]))
@@ -134,7 +141,7 @@ app.get('/', function(req, res) {
     longitude = req.body.longitude;
     console.log(req.body);
     addTag(req.body);
-    res.render('gta', {taglist: tagList, latitude: latitude, longitude: longitude});
+    res.send(tagList);
  });
 
 /**
@@ -147,18 +154,69 @@ app.get('/', function(req, res) {
  * Als Response wird das ejs-Template mit Geo Tag Objekten gerendert.
  * Die Objekte liegen in einem Standard Radius um die Koordinate (lat, lon).
  * Falls 'term' vorhanden ist, wird nach Suchwort gefiltert.
- */
+*/
 
- app.post('/discovery', function(req, res){
+//GET Request mit SearchTerm
+app.get('/discovery/:searchTerm', function(req, res){
     filteredList = [];
-    searchName(req.body.searchTerm);
-    console.log('Search for: "' + req.body.searchTerm + '" gave ' + filteredList.length + ' results');
-    res.render('gta', {taglist: filteredList, latitude: latitude, longitude: longitude});
- });
+    searchName(req.params.searchTerm);
+    console.log('Search for: "' + req.params.searchTerm + '" gave ' + filteredList.length + ' results');
+    res.send(JSON.stringify(filteredList));
+});
 
-/**
- * Setze Port und speichere in Express.
- */
+//GET Request ohne SearchTerm
+app.get('/discovery', function(req, res){
+    filteredList = [];
+    searchName("");
+    console.log('Search for: "' + '" gave ' + filteredList.length + ' results');
+    res.send(JSON.stringify(filteredList));
+});
+
+/*--------------------------------------------------------------------------------------------------*/
+//POST Request zum Hinzufügen von Tags
+app.post('/geotags/add', function(req, res){
+    addTag(req.query);
+    console.log("Calling API to add new Tag");
+    res.sendStatus(201);    //HTTP Response Code ist 201 (Created)
+});
+
+//GET Request zum Lesen einzelner Tags über ID
+app.get('/geotags/read/:id', function(req, res){
+    console.log('Calling API to read Tag with id: ' + req.params.id);
+    if (req.params.id<tagList.length) {
+        res.send(JSON.stringify(tagList[req.params.id]));
+    }
+    else {
+        res.sendStatus(404) //Fehler: Ressource nicht gefunden
+    }
+        
+});
+
+//POST Request zum Ändern von Tags
+app.post('/geotags/:id/change', function(req, res){
+    console.log("Calling API to add change Tag with id: " + req.params.id);
+    if (req.params.id<tagList.length) {
+        var ret = JSON.stringify(tagList[req.params.id]);
+        tagList[req.params.id]=new GeoTag(req.query);    
+        res.send(ret);  
+    }
+    else {
+        res.sendStatus(404) //Fehler: Ressource nicht gefunden
+    }
+});
+
+//POST Request zum Löschen einzelner Tags über ID
+app.post('/geotags/:id/delete', function(req, res){
+    console.log('Calling API to delete Tag with id: ' + req.params.id);
+    if (req.params.id<tagList.length) {
+        deleteTag(req.params.id);
+        res.sendStatus(200) //erfolgreich gelöscht 
+    }
+    else 
+        res.sendStatus(404) //Fehler: Ressource nicht gefunden
+});
+
+
 
 var port = 3000;
 app.set('port', port);

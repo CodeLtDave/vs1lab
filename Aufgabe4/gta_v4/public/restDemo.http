@@ -1,0 +1,15 @@
+# Add new Tag
+# POST http://localhost:3000/geotags/add?latitude=1&longitude=1&name=a&hashtag=a HTTP/1.1
+
+# Search for Tags
+# Get http://localhost:3000/discovery/a
+
+# Read Tag
+# Get http://localhost:3000/geotags/read/0
+
+# Change Tag
+POST http://localhost:3000/geotags/0/change?latitude=2&longitude=2&name=b&hashtag=b
+
+# Delete a Tag
+# POST http://localhost:3000/geotags/0/delete HTTP/1.1
+
