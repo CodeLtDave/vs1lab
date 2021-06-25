@@ -164,67 +164,19 @@ var gtaLocator = (function GtaLocator(geoLocationApi) {
  * des Skripts.
  */
 $(function() {
-
+    //Beim ersten Aufruf, bzw. laden der Seite wird tagListGET aufgerufen
+    tagListGET();
     
-    gtaLocator.updateLocation();
-    
-    //Wenn tagging button gedrückt wird
-    document.getElementById("tagging-button").addEventListener("click", function() {
-        var latitude = document.getElementById("latitude").value;
-        var longitude = document.getElementById("longitude").value;
-        var name = document.getElementById("name").value;
-        var hashtag = document.getElementById("hashtag").value;
-
-        var ajax = new XMLHttpRequest();
-
-        ajax.open("POST", "/tagging", true);
-        ajax.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-
-        //Wenn die Anfrage beendet ist und ein Ergebnis vorliegt, rufe UpdateTaglist auf
-        ajax.onreadystatechange = function() {
-            if (ajax.readyState==4) {
-                var tagList = JSON.parse(ajax.responseText);
-                console.log("Tagg added, complete List: " + ajax.responseText);
-                gtaLocator.updateLocation(tagList);
-                updateTaglist(tagList);
-            }
-        }
-
-        //Sende den Tag an den Server
-        ajax.send(JSON.stringify({ 
-            "latitude": latitude,
-            "longitude":longitude, 
-            "name": name,
-            "hashtag": hashtag,
-        }));
-    });
+    //Beim clicken des tagging-button's wird tagListPOST aufgerufen
+    document.getElementById("tagging-button").addEventListener("click", tagListPOST);
 
 
-    //Wenn discovery button gedrückt wird
-    document.getElementById("discovery-button").addEventListener("click", function() {
-        var ajax = new XMLHttpRequest();
-        var searchTerm = document.getElementById("searchTerm").value;
-
-        if(searchTerm!="")
-            ajax.open("GET", "/discovery/" + searchTerm, true);
-        else
-            ajax.open("GET", "/discovery", true);
-
-        //Wenn die Anfrage beendet ist und ein Ergebnis vorliegt, rufe UpdateTaglist auf
-        ajax.onreadystatechange = function() {
-            if(ajax.readyState==4) {
-                var tagList = JSON.parse(ajax.responseText);
-                console.log("GET DISCOVERY: " + ajax.responseText);
-                gtaLocator.updateLocation(tagList);
-                updateTaglist(tagList);
-            }
-        }
-        ajax.send();
-    });
+    //Wenn discovery button gedrückt wird, wird tagListGET aufgerufen
+    document.getElementById("discovery-button").addEventListener("click", tagListGET);
 });
 
-//Funktion um mit einem taglist array die HTML Liste neu zu laden
-function updateTaglist(tagList) {
+//Funktion um mit einem tagList array die HTML Liste neu zu laden
+function updatetagList(tagList) {
     var ul = document.getElementById("results");
     ul.innerHTML="";
     tagList.forEach(tag => {
@@ -232,4 +184,61 @@ function updateTaglist(tagList) {
         entry.appendChild(document.createTextNode(tag.name+ " (" + tag.latitude + ", " + tag.longitude + ") " + tag.hashtag));
         ul.appendChild(entry);
     });
+}
+
+//Sendet eine GET Anfrage (für die tagList) an den Server und aktualisiert anschließend die Map,
+//sowie die HTML Liste in der die Tags stehen
+function tagListGET() {
+    var ajax = new XMLHttpRequest();
+    var searchTerm = document.getElementById("searchTerm").value;
+
+    if(searchTerm!="")    
+        ajax.open("GET", "/discovery/" + searchTerm, true);     //Sendet GET mit Suchwort (z.B. /discovery/abc)
+    else
+        ajax.open("GET", "/discovery", true);                   //Sendet GET ohne Suchwort
+
+    //Wenn die Anfrage beendet ist und die tagList vom Server vorliegt, rufe UpdatetagList auf
+    ajax.onreadystatechange = function() {
+        if(ajax.readyState==4) {
+            var tagList = JSON.parse(ajax.responseText);        //Parsed die response des Server von JSON in ein tagList array
+            console.log("GET DISCOVERY: " + ajax.responseText); 
+            gtaLocator.updateLocation(tagList);                 //Aktualiesiert die Map
+            updatetagList(tagList);                             //Aktualiesiert die HTML Liste in der die Tags stehen
+        }
+    }
+    ajax.send();
+}
+
+
+//Sendet eine POST Anfrage mit einem neuen Tag an den Server und bekommt anschließend die vollständige TagList zurück
+//danach werden Map sowie die HTML List in der die Tags stehen aktualisiert
+function tagListPOST() {
+    //Lädt die Werte aus dem Formular in Variablen
+    var latitude = document.getElementById("latitude").value;
+    var longitude = document.getElementById("longitude").value;
+    var name = document.getElementById("name").value;
+    var hashtag = document.getElementById("hashtag").value;
+
+    var ajax = new XMLHttpRequest();
+
+    ajax.open("POST", "/tagging", true);                        
+    ajax.setRequestHeader("Content-Type", "application/json;charset=UTF-8");    //informiert den Server, dass die Daten in JSON Form geschickt werden
+
+    //Wenn die Anfrage beendet ist und die tagList vom Server vorliegt, rufe UpdatetagList auf
+    ajax.onreadystatechange = function() {
+        if (ajax.readyState==4) {
+            var tagList = JSON.parse(ajax.responseText);         //Parsed die response des Server von JSON in ein tagList array
+            console.log("Tagg added, complete List: " + ajax.responseText);
+            gtaLocator.updateLocation(tagList);                  //Aktualiesiert die Map
+            updatetagList(tagList);                              //Aktualiesiert die HTML Liste in der die Tags stehen
+        }
+    }
+
+    //Sende den Tag an den Server
+    ajax.send(JSON.stringify({ 
+        "latitude": latitude,
+        "longitude":longitude, 
+        "name": name,
+        "hashtag": hashtag,
+    }));
 }
