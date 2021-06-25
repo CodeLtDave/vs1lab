@@ -8,7 +8,7 @@
 # Get http://localhost:3000/geotags/read/0
 
 # Change Tag
-POST http://localhost:3000/geotags/0/change?latitude=2&longitude=2&name=b&hashtag=b
+# POST http://localhost:3000/geotags/0/change?latitude=2&longitude=2&name=b&hashtag=b
 
 # Delete a Tag
 # POST http://localhost:3000/geotags/0/delete HTTP/1.1

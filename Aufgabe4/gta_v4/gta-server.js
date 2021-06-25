@@ -65,6 +65,7 @@ var tagList = [];
 var filteredList = [];
 var latitude;
 var longitude;
+const ENTRIES_PER_PAGE = 6;
 
 function searchKoordinate(tag) {
     const RADIUS = 0.005;
@@ -108,6 +109,14 @@ function getTagg(i) {
     return new GeoTag(body)
 }
 
+function paginationBegin() {
+
+}
+
+function paginationEnd() {
+
+}
+
 /**
  * Route mit Pfad '/' für HTTP 'GET' Requests.
  * (http://expressjs.com/de/4x/api.html#app.get.method)
@@ -136,13 +145,7 @@ app.get('/', function(req, res) {
  * Die Objekte liegen in einem Standard Radius um die Koordinate (lat, lon).
  */
 
- app.post('/tagging', function(req, res){
-    latitude = req.body.latitude;
-    longitude = req.body.longitude;
-    console.log(req.body);
-    addTag(req.body);
-    res.send(tagList);
- });
+
 
 /**
  * Route mit Pfad '/discovery' für HTTP 'POST' Requests.
@@ -172,7 +175,7 @@ app.get('/discovery', function(req, res){
     res.send(JSON.stringify(filteredList));
 });
 
-/*--------------------------------------------------------------------------------------------------*/
+/*--------------------------------------AUFGABE 4.2------------------------------------------------------------*/
 //POST Request zum Hinzufügen von Tags
 app.post('/geotags/add', function(req, res){
     addTag(req.query);
@@ -215,8 +218,26 @@ app.post('/geotags/:id/delete', function(req, res){
     else 
         res.sendStatus(404) //Fehler: Ressource nicht gefunden
 });
+/*------------------------------------Aufgabe 4.3----------------------------------------------------*/
+//POST Request für tagList ohne Seitenangabe
+app.post('/tagging', function(req, res){
+    latitude = req.body.latitude;
+    longitude = req.body.longitude;
+    console.log(req.body);
+    addTag(req.body);
+    res.send(tagList);
+ });
 
+//POST Request für tagList mit Seitenangabe
+app.post('/tagging/:page', function(req, res){
+    latitude = req.body.latitude;
+    longitude = req.body.longitude;
+    console.log(req.body);
+    addTag(req.body);
+    res.send(tagList.slice(paginationBegin(),paginationEnd()));
+ });
 
+ 
 
 var port = 3000;
 app.set('port', port);

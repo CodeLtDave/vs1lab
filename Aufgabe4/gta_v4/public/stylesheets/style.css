@@ -73,3 +73,21 @@ ul {
   padding-left: 15px; /*Außenabstand nach Links der Eintragsliste auf 15px gesetzt*/
 }
 
+#pagination-box-parent {
+  text-align: center;
+}
+
+#pagination-box {
+  text-align: center;
+  display: inline-block;
+}
+
+#pagination-box button {
+  background-color: #00B7FF;
+  padding: 8px 16px;
+  border: 0;
+  margin: 4px;
+  text-decoration: none;
+}
+
+
