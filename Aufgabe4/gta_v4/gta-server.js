@@ -63,8 +63,6 @@ class GeoTag{
 
 var tagList = [];
 var filteredList = [];
-var latitude;
-var longitude;
 const ENTRIES_PER_PAGE = 6;
 
 function searchKoordinate(tag) {
@@ -109,13 +107,37 @@ function getTagg(i) {
     return new GeoTag(body)
 }
 
-function paginationBegin() {
 
+    //res.send(tagList.slice(paginationBegin(req.params.page),paginationEnd(req.params.page)));
+function pagination(page=1, list) {
+    var pageCount = Math.floor(tagList.length/ENTRIES_PER_PAGE);    //wie viele Seiten es insgesamt gibt
+    var ret = 
+    {
+        "page": page,
+        "pageCount": pageCount,
+        "ENTRIES_PER_PAGE": ENTRIES_PER_PAGE,
+        "tags": list.splice(paginationBegin, paginationEnd),
+    }
+
+    function paginationBegin() {
+        if (pageCount === 1)
+            return 0;
+        else if (page<=pageCount)
+            return (ENTRIES_PER_PAGE * (page-1));
+    }
+    function paginationEnd() {
+        if (pageCount === 1)
+            return tagList.length;
+        else if (page<pageCount)
+            return (ENTRIES_PER_PAGE*page - 1);
+        else if (page<=pageCount)
+            return ( tagList.length);
+    }
 }
 
-function paginationEnd() {
 
-}
+
+
 
 /**
  * Route mit Pfad '/' für HTTP 'GET' Requests.
@@ -128,24 +150,9 @@ function paginationEnd() {
 
 app.get('/', function(req, res) {
     res.render('gta', {
-        taglist: []
+        tagList: []
     });
 });
-
-/**
- * Route mit Pfad '/tagging' für HTTP 'POST' Requests.
- * (http://expressjs.com/de/4x/api.html#app.post.method)
- *
- * Requests enthalten im Body die Felder des 'tag-form' Formulars.
- * (http://expressjs.com/de/4x/api.html#req.body)
- *
- * Mit den Formulardaten wird ein neuer Geo Tag erstellt und gespeichert.
- *
- * Als Response wird das ejs-Template mit Geo Tag Objekten gerendert.
- * Die Objekte liegen in einem Standard Radius um die Koordinate (lat, lon).
- */
-
-
 
 /**
  * Route mit Pfad '/discovery' für HTTP 'POST' Requests.
@@ -234,10 +241,9 @@ app.post('/tagging/:page', function(req, res){
     longitude = req.body.longitude;
     console.log(req.body);
     addTag(req.body);
-    res.send(tagList.slice(paginationBegin(),paginationEnd()));
+    res.send(pagination(req.params.page));
  });
 
- 
 
 var port = 3000;
 app.set('port', port);
@@ -253,3 +259,12 @@ var server = http.createServer(app);
  */
 
 server.listen(port);
+
+function fillTagList() {
+    tagList = 
+    [
+        {
+            longitude:1
+        }
+    ]
+}
