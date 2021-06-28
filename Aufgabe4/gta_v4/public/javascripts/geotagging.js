@@ -178,7 +178,7 @@ $(function() {
 //Funktion um mit einem tagList array die HTML Liste neu zu laden
 function updatetagList(tagList) {
     var ul = document.getElementById("results");
-    ul.innerHTML="";
+    ul.innerHTML="";                                            //cleared list
     tagList.forEach(tag => {
         var entry = document.createElement("li");
         entry.appendChild(document.createTextNode(tag.name+ " (" + tag.latitude + ", " + tag.longitude + ") " + tag.hashtag));
@@ -192,7 +192,8 @@ function tagListGET() {
     var ajax = new XMLHttpRequest();
     var searchTerm = document.getElementById("searchTerm").value;
 
-    if(searchTerm!="")    
+
+    if(searchTerm!="")
         ajax.open("GET", "/discovery/" + searchTerm, true);     //Sendet GET mit Suchwort (z.B. /discovery/abc)
     else
         ajax.open("GET", "/discovery", true);                   //Sendet GET ohne Suchwort

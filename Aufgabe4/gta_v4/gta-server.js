@@ -206,7 +206,7 @@ app.post('/geotags/:id/change', function(req, res){
 });
 
 //POST Request zum Löschen einzelner Tags über ID
-app.post('/geotags/:id/delete', function(req, res){
+app.delete('/geotags/:id/delete', function(req, res){
     console.log('Calling API to delete Tag with id: ' + req.params.id);
     if (req.params.id<tagList.length) {
         deleteTag(req.params.id);
