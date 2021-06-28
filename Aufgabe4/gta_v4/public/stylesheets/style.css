@@ -83,6 +83,7 @@ ul {
 }
 
 #pagination-box button {
+  color: white;
   background-color: #00B7FF;
   padding: 8px 16px;
   border: 0;

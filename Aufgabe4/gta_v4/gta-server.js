@@ -64,6 +64,7 @@ class GeoTag{
 var tagList = [];
 var filteredList = [];
 const ENTRIES_PER_PAGE = 6;
+fillTagList();
 
 function searchKoordinate(tag) {
     const RADIUS = 0.005;
@@ -81,7 +82,7 @@ function searchKoordinate(tag) {
 function searchName(searchTerm="") {
     for(var i = 0; i<tagList.length; i++) {
         if(tagList[i].name.includes(searchTerm) || tagList[i].hashtag.includes(searchTerm)) {
-            if (searchKoordinate(tagList[i]))
+            // if (searchKoordinate(tagList[i]))
                 filteredList.push(getTagg(i));
         }
     }
@@ -109,29 +110,51 @@ function getTagg(i) {
 
 
     //res.send(tagList.slice(paginationBegin(req.params.page),paginationEnd(req.params.page)));
-function pagination(page=1, list) {
-    var pageCount = Math.floor(tagList.length/ENTRIES_PER_PAGE);    //wie viele Seiten es insgesamt gibt
+function pagination(page=1, list=tagList) {
+    var errors = [];
+    var pageCount = Math.floor( (list.length-1) /ENTRIES_PER_PAGE + 1);    //wie viele Seiten es insgesamt gibt
+
+    if (page<1) {
+        errors.push("page cant be smaller than 1"); 
+        page = 1;
+    }
+    if (page>pageCount) {
+        errors.push("page cant be bigger than pageCount"); 
+        page = 1;
+    }
+
+    
+
     var ret = 
     {
         "page": page,
         "pageCount": pageCount,
         "ENTRIES_PER_PAGE": ENTRIES_PER_PAGE,
-        "tags": list.splice(paginationBegin, paginationEnd),
+        "tags": [],
+        "errors": errors,
+    }
+    var begin = getPaginationBegin();
+    var end = getPaginationEnd();
+    for (var i = begin; i<=end; i++) {
+        ret.tags.push((list[i]));
     }
 
-    function paginationBegin() {
+
+    return ret;
+
+    function getPaginationBegin() {
         if (pageCount === 1)
             return 0;
         else if (page<=pageCount)
             return (ENTRIES_PER_PAGE * (page-1));
     }
-    function paginationEnd() {
+    function getPaginationEnd() {
         if (pageCount === 1)
-            return tagList.length;
+            return list.length-1;
         else if (page<pageCount)
             return (ENTRIES_PER_PAGE*page - 1);
         else if (page<=pageCount)
-            return ( tagList.length);
+            return ( list.length-1);
     }
 }
 
@@ -165,23 +188,6 @@ app.get('/', function(req, res) {
  * Die Objekte liegen in einem Standard Radius um die Koordinate (lat, lon).
  * Falls 'term' vorhanden ist, wird nach Suchwort gefiltert.
 */
-
-//GET Request mit SearchTerm
-app.get('/discovery/:searchTerm', function(req, res){
-    filteredList = [];
-    searchName(req.params.searchTerm);
-    console.log('Search for: "' + req.params.searchTerm + '" gave ' + filteredList.length + ' results');
-    res.send(JSON.stringify(filteredList));
-});
-
-//GET Request ohne SearchTerm
-app.get('/discovery', function(req, res){
-    filteredList = [];
-    searchName("");
-    console.log('Search for: "' + '" gave ' + filteredList.length + ' results');
-    res.send(JSON.stringify(filteredList));
-});
-
 /*--------------------------------------AUFGABE 4.2------------------------------------------------------------*/
 //POST Request zum Hinzufügen von Tags
 app.post('/geotags/add', function(req, res){
@@ -226,23 +232,30 @@ app.post('/geotags/:id/delete', function(req, res){
         res.sendStatus(404) //Fehler: Ressource nicht gefunden
 });
 /*------------------------------------Aufgabe 4.3----------------------------------------------------*/
-//POST Request für tagList ohne Seitenangabe
-app.post('/tagging', function(req, res){
-    latitude = req.body.latitude;
-    longitude = req.body.longitude;
-    console.log(req.body);
-    addTag(req.body);
-    res.send(tagList);
- });
-
 //POST Request für tagList mit Seitenangabe
 app.post('/tagging/:page', function(req, res){
     latitude = req.body.latitude;
     longitude = req.body.longitude;
     console.log(req.body);
     addTag(req.body);
-    res.send(pagination(req.params.page));
+    res.send(pagination(req.params.page, tagList));
  });
+
+ //GET Request mit SearchTerm und Seitenangabe
+app.get('/discovery/:page/:searchTerm/', function(req, res){
+    filteredList = [];
+    searchName(req.params.searchTerm);
+    console.log('Search for: "' + req.params.searchTerm + '" gave ' + filteredList.length + ' results');
+    res.send(pagination(req.params.page, filteredList));
+});
+
+//GET Request ohne SearchTerm und Seitenangabe
+app.get('/discovery/:page', function(req, res){
+    filteredList = [];
+    searchName("");
+    console.log('Search for: "' + '" gave ' + filteredList.length + ' results');
+    res.send(pagination(req.params.page, filteredList));
+});
 
 
 var port = 3000;
@@ -264,7 +277,64 @@ function fillTagList() {
     tagList = 
     [
         {
-            longitude:1
-        }
+            "latitude":"1",
+            "longitude":"1",
+            "name":"a",
+            "hashtag":"#a"
+        },
+        {
+            "latitude":"1",
+            "longitude":"1",
+            "name":"b",
+            "hashtag":"#b"
+        },
+        {
+            "latitude":"1",
+            "longitude":"1",
+            "name":"c",
+            "hashtag":"#c"
+        },
+        {
+            "latitude":"1",
+            "longitude":"1",
+            "name":"d",
+            "hashtag":"#d"
+        },
+        {
+            "latitude":"1",
+            "longitude":"1",
+            "name":"e",
+            "hashtag":"#e"
+        },
+        {
+            "latitude":"1",
+            "longitude":"1",
+            "name":"f",
+            "hashtag":"#f"
+        },
+        {
+            "latitude":"1",
+            "longitude":"1",
+            "name":"g",
+            "hashtag":"#g"
+        },
+        {
+            "latitude":"1",
+            "longitude":"1",
+            "name":"h",
+            "hashtag":"#h"
+        },
+        {
+            "latitude":"1",
+            "longitude":"1",
+            "name":"i",
+            "hashtag":"#i"
+        },
+        {
+            "latitude":"1",
+            "longitude":"1",
+            "name":"j",
+            "hashtag":"#j"
+        },
     ]
 }

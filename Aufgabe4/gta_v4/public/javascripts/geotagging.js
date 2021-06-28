@@ -7,6 +7,7 @@
  * Das Konsolenfenster muss im Browser explizit geöffnet werden.
  */
 console.log("The script is going to start...");
+var response;
 
 // Es folgen einige Deklarationen, die aber noch nicht ausgeführt werden ...
 
@@ -168,11 +169,11 @@ $(function() {
     tagListGET();
     
     //Beim clicken des tagging-button's wird tagListPOST aufgerufen
-    document.getElementById("tagging-button").addEventListener("click", tagListPOST);
+    document.getElementById("tagging-button").addEventListener("click", function() {tagListPOST();});
 
 
     //Wenn discovery button gedrückt wird, wird tagListGET aufgerufen
-    document.getElementById("discovery-button").addEventListener("click", tagListGET);
+    document.getElementById("discovery-button").addEventListener("click", function() {tagListGET();});
 });
 
 //Funktion um mit einem tagList array die HTML Liste neu zu laden
@@ -188,22 +189,25 @@ function updatetagList(tagList) {
 
 //Sendet eine GET Anfrage (für die tagList) an den Server und aktualisiert anschließend die Map,
 //sowie die HTML Liste in der die Tags stehen
-function tagListGET() {
+function tagListGET(page = 1) {
     var ajax = new XMLHttpRequest();
     var searchTerm = document.getElementById("searchTerm").value;
 
     if(searchTerm!="")    
-        ajax.open("GET", "/discovery/" + searchTerm, true);     //Sendet GET mit Suchwort (z.B. /discovery/abc)
+        ajax.open("GET", "/discovery/" + page + "/" + searchTerm, true);     //Sendet GET mit Suchwort (z.B. /discovery/abc)
     else
-        ajax.open("GET", "/discovery", true);                   //Sendet GET ohne Suchwort
+        ajax.open("GET", "/discovery/" + page , true);                   //Sendet GET ohne Suchwort
 
     //Wenn die Anfrage beendet ist und die tagList vom Server vorliegt, rufe UpdatetagList auf
     ajax.onreadystatechange = function() {
         if(ajax.readyState==4) {
-            var tagList = JSON.parse(ajax.responseText);        //Parsed die response des Server von JSON in ein tagList array
+            response = JSON.parse(ajax.responseText);        //Parsed die response des Server von JSON in ein tagList array
             console.log("GET DISCOVERY: " + ajax.responseText); 
-            gtaLocator.updateLocation(tagList);                 //Aktualiesiert die Map
-            updatetagList(tagList);                             //Aktualiesiert die HTML Liste in der die Tags stehen
+            if (response.pageCount>0) {
+                gtaLocator.updateLocation(response.tags);                 //Aktualiesiert die Map
+                updatetagList(response.tags);                             //Aktualiesiert die HTML Liste in der die Tags stehen
+                paginationHTMLButtons(response);
+            }
         }
     }
     ajax.send();
@@ -221,16 +225,17 @@ function tagListPOST() {
 
     var ajax = new XMLHttpRequest();
 
-    ajax.open("POST", "/tagging", true);                        
+    ajax.open("POST", "/tagging/1", true);                        
     ajax.setRequestHeader("Content-Type", "application/json;charset=UTF-8");    //informiert den Server, dass die Daten in JSON Form geschickt werden
 
     //Wenn die Anfrage beendet ist und die tagList vom Server vorliegt, rufe UpdatetagList auf
     ajax.onreadystatechange = function() {
         if (ajax.readyState==4) {
-            var tagList = JSON.parse(ajax.responseText);         //Parsed die response des Server von JSON in ein tagList array
+            response = JSON.parse(ajax.responseText);         //Parsed die response des Server von JSON in ein tagList array
             console.log("Tagg added, complete List: " + ajax.responseText);
-            gtaLocator.updateLocation(tagList);                  //Aktualiesiert die Map
-            updatetagList(tagList);                              //Aktualiesiert die HTML Liste in der die Tags stehen
+            gtaLocator.updateLocation(response.tags);                  //Aktualiesiert die Map
+            updatetagList(response.tags);                              //Aktualiesiert die HTML Liste in der die Tags stehen
+            paginationHTMLButtons(response);
         }
     }
 
@@ -241,4 +246,58 @@ function tagListPOST() {
         "name": name,
         "hashtag": hashtag,
     }));
+}
+
+function paginationHTMLButtons(response) {
+    var paginationBox = document.getElementById("pagination-box");
+    var paginationButtonLeft;
+    var paginationButtonRight;
+
+    resetButtons();
+
+    if (response.pageCount > 1) {
+        for (var i = 1; i<=response.pageCount; i++) {
+            addButton(i);
+        }
+    }
+
+    document.getElementById("pagination-button-"+response.page).style.color = "black";
+
+    function addButton (buttonNumber) {
+        var newEntry = document.createElement("button");
+        newEntry.innerHTML = buttonNumber;
+        newEntry.id = "pagination-button-" + buttonNumber;
+        newEntry.addEventListener("click", function(){tagListGET(buttonNumber);})
+        
+        paginationBox.insertBefore(newEntry, paginationButtonRight);
+    }
+
+    function resetButtons() {
+        paginationBox.innerHTML="";
+
+        paginationButtonLeft = document.createElement("button");
+        paginationButtonLeft.innerHTML = "<<";
+        paginationButtonLeft.id = "pagination-button-<<";
+        paginationButtonLeft.addEventListener("click", function() {paginationButtonLeftClick();})
+        paginationBox.appendChild(paginationButtonLeft);
+
+        paginationButtonRight = document.createElement("button");
+        paginationButtonRight.innerHTML = ">>"
+        paginationButtonRight.id = "pagination-button->>";
+        paginationButtonRight.addEventListener("click", function() {paginationButtonRightClick();})
+
+        paginationBox.appendChild(paginationButtonRight);
+    }
+}
+
+function paginationButtonLeftClick() {
+    if (response.page > 1) {
+        tagListGET(parseInt(response.page)-1);
+    }
+}
+
+function paginationButtonRightClick() {
+    if (response.page < response.pageCount) {
+        tagListGET(parseInt(response.page)+1);
+    }
 }

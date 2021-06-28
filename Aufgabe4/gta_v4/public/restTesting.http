@@ -1,9 +1,9 @@
-POST http://localhost:3000/tagging/0 HTTP/1.1
+POST http://localhost:3000/tagging/3 HTTP/1.1
 content-type: application/json
 
 {
-    "latitude": "4.20",
-    "longitude": "4.20",
+    "latitude": "4.26",
+    "longitude": "4.29",
     "name": "Hannes",
-    "hashtag": "#EinesMannes"
+    "hashtag": "#the Man"
 }
